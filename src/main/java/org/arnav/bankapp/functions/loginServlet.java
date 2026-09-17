@@ -1,10 +1,9 @@
-package org.arnav.bankapp.Autentication;
+package org.arnav.bankapp.functions;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.arnav.bankapp.utils.DBUtil;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
-import java.util.ArrayList;
 
 @CrossOrigin(origins = "http://localhost:5175")
 @Controller
@@ -32,8 +30,7 @@ public class loginServlet {
 
         try {
             connect = DBUtil.getConnection();
-
-            String sql = "select * from 'User_Info' where name = ?";
+            String sql = "select * from User_Info where userID = ?";
             PreparedStatement smt = connect.prepareStatement(sql);
             smt.setInt(1, uname);
 
@@ -45,10 +42,12 @@ public class loginServlet {
             PrintWriter out = response.getWriter();
 
             if (rs.next()) {
-
-                if (rs.getString(2).equals(passw)) {
+                System.out.println(rs.getString(2));
+                if (rs.getString("Password").equals(passw)) {
 
                     out.print("{\"success\":true,\"message\":\"Login successful\"}");
+                    request.getRequestDispatcher("./index1.jsp").forward(request,response);
+                    return;
 
                 } else {
 
@@ -73,6 +72,8 @@ public class loginServlet {
                     "{\"success\":false,\"message\":\"Database error\"}"
             );
 
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
         } finally {
 
             if (connect != null) {
@@ -106,6 +107,7 @@ public class loginServlet {
                 if(rs.next()){
                     request.setAttribute("msg","Username is already taken");
                     request.getRequestDispatcher("./signup.jsp").forward(request,response);
+                    return;
 
                 }
                 else{
