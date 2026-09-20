@@ -3,7 +3,9 @@ package org.arnav.bankapp.functions;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.arnav.bankapp.utils.DBUtil;
+import org.hibernate.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
 
-@CrossOrigin(origins = "http://localhost:5175")
+
 @Controller
 public class loginServlet {
     @RequestMapping("/")
@@ -35,7 +37,7 @@ public class loginServlet {
             smt.setInt(1, uname);
 
             ResultSet rs = smt.executeQuery();
-
+            HttpSession session = request.getSession();
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
 
@@ -44,7 +46,9 @@ public class loginServlet {
             if (rs.next()) {
                 System.out.println(rs.getString(2));
                 if (rs.getString("Password").equals(passw)) {
-
+            session.setAttribute("uid",uname);
+            session.setAttribute("pid",0);
+            session.setAttribute("amount",0);
                     out.print("{\"success\":true,\"message\":\"Login successful\"}");
                     request.getRequestDispatcher("./index1.jsp").forward(request,response);
                     return;
