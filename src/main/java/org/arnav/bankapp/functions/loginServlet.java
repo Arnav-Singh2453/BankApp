@@ -49,6 +49,7 @@ public class loginServlet {
             session.setAttribute("uid",uname);
             session.setAttribute("pid",0);
             session.setAttribute("amount",0);
+            session.setAttribute("login",true);
                     out.print("{\"success\":true,\"message\":\"Login successful\"}");
                     request.getRequestDispatcher("./index1.jsp").forward(request,response);
                     return;
@@ -160,5 +161,13 @@ public class loginServlet {
                     throw new RuntimeException(e);
                 }
             }
+        }
+
+    @PostMapping("/logout")
+        public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        System.out.println("logout");
+            HttpSession session = request.getSession();
+            session.setAttribute("login",false);
+
         }
 }

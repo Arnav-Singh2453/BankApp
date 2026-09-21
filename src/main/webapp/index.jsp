@@ -17,6 +17,7 @@
     }
 </style>
 <body>
+<% session.setAttribute("login",false);%>
 <div class="cont">
     <form action="./hello-servlet" method="post">
         <div>Username</div>

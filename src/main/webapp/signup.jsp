@@ -17,6 +17,7 @@
     }
 </style>
 <body>
+<%if((boolean)session.getAttribute("login")){ %>
 <div class="cont">
     <form action="./signup" method="post">
         <div>Name</div>
@@ -40,6 +41,9 @@
     <div><%=error%></div>
     <%    }
     %>
+    <%}else{%>
+    <a href="index.jsp">Login first</a>
+    <%}%>
 </div>
 </body>
 </html>
