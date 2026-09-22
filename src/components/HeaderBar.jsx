@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, Sun, Moon, Settings, RefreshCw, LogIn, LogOut } from 'lucide-react';
+import { Volume2, Sun, Moon, Settings, RefreshCw, LogIn } from 'lucide-react';
 import { speakText, resetDemoState, logoutUser } from '../services/api';
 
 export default function HeaderBar({ 
@@ -8,9 +8,11 @@ export default function HeaderBar({
   onOpenBackendSettings,
   onOpenLogin,
   onStateUpdate,
-  balance,
-  user
+  balance = 5000,
+  user = {}
 }) {
+  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 5000;
+
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
@@ -20,11 +22,6 @@ export default function HeaderBar({
       const newState = resetDemoState();
       onStateUpdate(newState);
     }
-  };
-
-  const handleLogout = () => {
-    const newState = logoutUser();
-    onStateUpdate(newState);
   };
 
   return (
@@ -56,13 +53,13 @@ export default function HeaderBar({
         {/* Manual Speaker Readout button */}
         <button 
           className="icon-btn" 
-          onClick={() => speakText(`Your balance is ${balance.toLocaleString('en-IN')} rupees`)}
+          onClick={() => speakText(`Your balance is ${safeBalance.toLocaleString('en-IN')} rupees`)}
           title="Read Balance Out Loud"
         >
           <Volume2 size={18} />
         </button>
 
-        {/* Login / Logout */}
+        {/* Login / Switch Account */}
         <button className="icon-btn" onClick={onOpenLogin} title="Login / Switch Account">
           <LogIn size={18} />
         </button>
@@ -70,6 +67,11 @@ export default function HeaderBar({
         {/* Contrast Theme Toggle */}
         <button className="icon-btn" onClick={toggleTheme} title="Toggle Theme">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        {/* Reset Demo Data */}
+        <button className="icon-btn" onClick={handleResetDemo} title="Reset Demo Data">
+          <RefreshCw size={18} />
         </button>
 
         {/* Settings */}

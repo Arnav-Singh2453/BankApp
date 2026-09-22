@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'bankapp_state_v5';
-const API_CONFIG_KEY = 'bankapp_api_config_v5';
+const STORAGE_KEY = 'bankapp_state_v6';
+const API_CONFIG_KEY = 'bankapp_api_config_v6';
 
 // Default initial state matching Spring Boot backend (User ID: 100000001, Initial Balance: ₹5,000.00)
 const INITIAL_STATE = {
@@ -9,9 +9,11 @@ const INITIAL_STATE = {
     name: 'Mary Morgan',
     phone: '9876543210',
     age: 65,
-    balance: 5000.00,
-    currency: '₹',
+    accountNumber: '4092-8840-5512',
+    iban: 'IN89 EASY 4092 8840 5512',
   },
+  balance: 5000.00,
+  currency: '₹',
   card: {
     cardNumber: '4532 8810 9940 3312',
     cardholderName: 'MARY MORGAN',
@@ -34,7 +36,7 @@ const INITIAL_STATE = {
 
 const DEFAULT_API_CONFIG = {
   useMockData: true,
-  baseUrl: 'http://localhost:8080', // Default Spring Boot port
+  baseUrl: 'http://localhost:8080',
 };
 
 // Text-to-Speech Helper (Manual click only)
@@ -67,7 +69,18 @@ export const saveApiConfig = (config) => {
 export const getAppState = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.balance === 'number') {
+        return {
+          ...INITIAL_STATE,
+          ...parsed,
+          user: { ...INITIAL_STATE.user, ...(parsed.user || {}) },
+          card: { ...INITIAL_STATE.card, ...(parsed.card || {}) },
+          transactions: Array.isArray(parsed.transactions) ? parsed.transactions : INITIAL_STATE.transactions,
+        };
+      }
+    }
   } catch (e) {
     console.warn('Could not read state:', e);
   }
@@ -159,7 +172,7 @@ export const signupUser = async ({ name, age, phone, pass }) => {
   state.user.name = name;
   state.user.phone = phone;
   state.user.age = age;
-  state.user.balance = 5000.00; // Matches BankApp initial balance of 5000
+  state.balance = 5000.00;
   saveAppState(state);
   return { success: true, message: 'User registered successfully' };
 };
@@ -194,7 +207,6 @@ export const performSendMoney = async ({ payid, amount, note }) => {
       });
 
       if (resSend.ok) {
-        // Confirm payment step
         const resPsend = await fetch(`${config.baseUrl}/psend`, { method: 'POST' });
         if (!resPsend.ok) throw new Error('Payment execution failed on server');
       }
@@ -273,7 +285,7 @@ export const logoutUser = () => {
 };
 
 /**
- * Test API Connectivity to Spring Boot
+ * Test API Connectivity
  */
 export const testBackendPing = async (baseUrl) => {
   const config = getApiConfig();

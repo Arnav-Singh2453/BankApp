@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Copy, Check } from 'lucide-react';
 
-export default function BalanceCard({ balance, user }) {
+export default function BalanceCard({ balance = 5000, user = {} }) {
   const [showBalance, setShowBalance] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 5000;
 
   const handleCopyIban = () => {
     navigator.clipboard.writeText(user.iban || 'IN89 EASY 4092 8840 5512');
@@ -11,7 +13,7 @@ export default function BalanceCard({ balance, user }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formattedBalance = `₹${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formattedBalance = `₹${safeBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="clean-card">
