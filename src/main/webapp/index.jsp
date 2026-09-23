@@ -168,7 +168,7 @@
         <div class="brand-tagline">Payment Made Easy</div>
     </div>
     <%
-        String error = (String)session.getAttribute("msg");
+        String error = (String)session.getAttribute("msg1");
         if (error != null) {
 
     %>

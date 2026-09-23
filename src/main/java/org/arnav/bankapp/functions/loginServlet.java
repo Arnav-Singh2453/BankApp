@@ -57,14 +57,14 @@ public class loginServlet {
 
                 } else {
                     System.out.println("Wrong password");
-                    session.setAttribute("msg", "Wrong Password");
+                    session.setAttribute("msg1", "Wrong Password");
                     request.getRequestDispatcher("./index.jsp").forward(request, response);
 
                 }
 
             } else {
                 System.out.println("no cid");
-                session.setAttribute("msg", "Wrong CustomerID");
+                session.setAttribute("msg1", "Wrong CustomerID");
                 request.getRequestDispatcher("./index.jsp").forward(request, response);
 
 
@@ -119,7 +119,7 @@ public class loginServlet {
             ResultSet rs = smt.executeQuery();
             if (rs.next()) {
                 System.out.println("issue");
-                session.setAttribute("msg", "Phone number is already registered");
+                session.setAttribute("msg2", "Phone number is already registered");
                 request.getRequestDispatcher("./signup.jsp").forward(request, response);
 
 
@@ -150,12 +150,12 @@ public class loginServlet {
 
                         String s = "User registered successfully login now. Your CustomerID is "+rs.getInt("userID");
 
-                          session.setAttribute("msg",s);
+                          session.setAttribute("msg1",s);
                         request.getRequestDispatcher("./index.jsp").forward(request, response);
                     }
                 } else {
 
-                    session.setAttribute("msg", "some error try again");
+                    session.setAttribute("msg2", "some error try again");
                     request.getRequestDispatcher("./signup.jsp").forward(request, response);
                 }
             }
