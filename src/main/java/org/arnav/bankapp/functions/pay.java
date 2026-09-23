@@ -1,5 +1,6 @@
 package org.arnav.bankapp.functions;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +33,8 @@ public class pay {
     }
 
     @PostMapping("/send")
-    public String send(HttpServletRequest req, HttpServletResponse response) {
+    public void send(HttpServletRequest req, HttpServletResponse response) {
+        System.out.println(11);
         Connection connect = null;
         PreparedStatement smt = null;
         try {
@@ -50,17 +53,16 @@ public class pay {
                 session.setAttribute("pid", payid);
                 session.setAttribute("name", rs.getString(5));
 
-                return "pay.jsp";
-            } else {
-                return "pay.jsp";
+
             }
+            req.getRequestDispatcher("pay.jsp").forward(req, response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @PostMapping("/psend")
-    public String psend(HttpServletRequest req, HttpServletResponse response) {
+    public void psend(HttpServletRequest req, HttpServletResponse response) {
         HttpSession session = req.getSession(false);
         Connection connect = null;
         PreparedStatement smt = null;
@@ -146,16 +148,20 @@ public class pay {
                         ms = "payment failed due to insufficient balance";
                     }
                     session.setAttribute("msg", ms);
-                    return "paystatus.jsp";
+                    req.getRequestDispatcher("paystatus.jsp").forward(req,response);
                 } else {
                     System.out.println("User not found");
-                    return "pay.jsp";
+                    req.getRequestDispatcher("pay.jsp").forward(req, response);
                 }
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return "index1.jsp";
+
     }
 }

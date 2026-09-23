@@ -265,13 +265,6 @@
 
 <body>
 
-<%
-    // Check if user clicked cancel
-    if ("true".equals(request.getParameter("cancel"))) {
-        session.removeAttribute("name");
-        request.removeAttribute("name");
-    }
-%>
 <div class="card">
     <% if (session.getAttribute("login") != null && (Boolean) session.getAttribute("login")) { %>
 
@@ -316,7 +309,7 @@
                     <input type="submit" value="Yes, Pay Now" class="btn-confirm">
                 </form>
 
-                <a href="pay.jsp?cancel=true" class="btn-cancel">No, Cancel</a>
+                <a  onclick="redir()" class="btn-cancel">No, Cancel</a>
             </div>
         </div>
     </div>
@@ -335,6 +328,10 @@
 </div>
 
 <script>
+    function  redir(){
+        <% session.removeAttribute("name"); %>
+        window.location.href = '${pageContext.request.contextPath}/pay.jsp';
+    }
     function logout() {
         axios.post('${pageContext.request.contextPath}/logout')
             .then(function (response) {
