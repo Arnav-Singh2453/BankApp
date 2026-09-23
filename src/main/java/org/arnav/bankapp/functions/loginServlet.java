@@ -96,6 +96,7 @@ public class loginServlet {
 
     @PostMapping("/signup")
     public void signup(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("sinside signup");
         String uname = request.getParameter("uname");
         int age = Integer.parseInt(request.getParameter("age"));
         String phone = (request.getParameter("phone"));
@@ -115,9 +116,10 @@ public class loginServlet {
             smt.setString(1, phone);
             ResultSet rs = smt.executeQuery();
             if (rs.next()) {
+                System.out.println("issue");
                 request.setAttribute("msg", "Phone number is already registered");
                 request.getRequestDispatcher("./signup.jsp").forward(request, response);
-                return;
+
 
             } else {
                 sql = "insert into User_Info(`Password`,`Age`,`Phone`,`Name`,`Balance`) values(?,?,?,?,?)";
@@ -143,6 +145,7 @@ public class loginServlet {
                         connect.rollback();
                     } else {
                         connect.commit();
+                        System.out.println("success");
                         request.setAttribute("msg", "User registered successfully login now. Your CustomerID is "+rs.getInt("userID"));
                         request.getRequestDispatcher("./index.jsp").forward(request, response);
                     }
