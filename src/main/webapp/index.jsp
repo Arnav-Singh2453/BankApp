@@ -141,6 +141,7 @@
 
         .error-msg {
             margin-top: 20px;
+            margin-bottom: 10px;
             padding: 12px;
             background-color: #fff5f5;
             border: 2px solid #e53e3e;
@@ -166,6 +167,13 @@
         </div>
         <div class="brand-tagline">Payment Made Easy</div>
     </div>
+    <%
+        String error = (String)session.getAttribute("msg");
+        if (error != null) {
+
+    %>
+    <div class="error-msg"><%= error %></div>
+    <%  } %>
 
     <form action="./hello-servlet" method="post">
         <div class="form-group">
@@ -187,13 +195,7 @@
         </a>
     </div>
 
-    <%
-        String error = (String)session.getAttribute("msg");
-        if (error != null) {
 
-    %>
-    <div class="error-msg"><%= error %></div>
-    <%  } %>
 </div>
 
 </body>
