@@ -53,17 +53,19 @@ public class loginServlet {
                     session.setAttribute("login", true);
                     session.setAttribute("username", rs.getString("Name"));
                     session.setAttribute("useramount", rs.getDouble("balance"));
-                    out.print("{\"success\":true,\"message\":\"Login successful\"}");
+
                     request.getRequestDispatcher("./index1.jsp").forward(request, response);
                     return;
 
                 } else {
+                    System.out.println("Wrong password");
                     session.setAttribute("msg", "Wrong Password");
                     request.getRequestDispatcher("./index.jsp").forward(request, response);
 
                 }
 
             } else {
+                System.out.println("no cid");
                 session.setAttribute("msg", "Wrong CustomerID");
                 request.getRequestDispatcher("./index.jsp").forward(request, response);
 
@@ -76,7 +78,7 @@ public class loginServlet {
 
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
-
+            System.out.println(e.getMessage());
             response.getWriter().print(
                     "{\"success\":false,\"message\":\"Database error\"}"
             );
