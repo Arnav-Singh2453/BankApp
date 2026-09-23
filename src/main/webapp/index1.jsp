@@ -16,7 +16,7 @@
         body {
             background-color: #f0f4f8;
             margin: 0;
-            padding: 24px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,7 +29,7 @@
             background-color: #ffffff;
             border: 2px solid #1a365d;
             border-radius: 12px;
-            padding: 28px;
+            padding: 24px 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
@@ -95,14 +95,14 @@
             background-color: #1a365d;
             color: #ffffff;
             border-radius: 14px;
-            padding: 24px;
+            padding: 20px;
             margin-bottom: 24px;
             box-shadow: 0 4px 12px rgba(26, 54, 93, 0.25);
             border: 2px solid #2b6cb0;
         }
 
         .balance-label {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #cbd5e0;
             text-transform: uppercase;
@@ -118,26 +118,29 @@
         }
 
         .balance-amount {
-            font-size: 32px;
+            font-size: clamp(20px, 5vw, 32px);
             font-weight: 800;
             letter-spacing: 1px;
             color: #ffffff;
+            word-break: break-word;
         }
 
         .toggle-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 6px;
             background-color: #2b6cb0;
             color: #ffffff;
             border: 2px solid #63b3ed;
             border-radius: 30px;
-            padding: 10px 18px;
-            font-size: 16px;
+            padding: 8px 14px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             user-select: none;
             transition: all 0.2s ease-in-out;
+            white-space: nowrap;
         }
 
         .toggle-btn:hover {
@@ -150,8 +153,8 @@
         }
 
         .eye-svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
@@ -177,6 +180,19 @@
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6);
         }
 
+        /* --- MOBILE SPECIFIC FIX: Hide Show/Hide text on mobile devices --- */
+        @media (max-width: 480px) {
+            #btnText {
+                display: none !important; /* Hides text completely on small screens */
+            }
+            .toggle-btn {
+                padding: 10px; /* Converts button into a circular icon button */
+                border-radius: 50%;
+                width: 42px;
+                height: 42px;
+            }
+        }
+
         /* --- Action Navigation Cards --- */
         .action-list {
             display: flex;
@@ -191,10 +207,10 @@
             background-color: #ebf8ff;
             border: 2px solid #2b6cb0;
             border-radius: 10px;
-            padding: 20px;
+            padding: 16px 20px;
             text-decoration: none;
             color: #2b6cb0;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             transition: background-color 0.2s;
         }
@@ -204,7 +220,7 @@
         }
 
         .action-icon {
-            font-size: 24px;
+            font-size: 22px;
         }
 
         /* --- Access Denied View --- */
@@ -237,7 +253,6 @@
 
 <div class="dashboard-card">
 
-
     <!-- Header Section with p-easy Logo & Logout -->
     <div class="header">
         <div class="brand-logo">
@@ -256,7 +271,7 @@
         <div class="balance-display-row">
             <div id="amount" class="balance-amount">₹ ******</div>
 
-            <label for="check" style="margin: 0; cursor: pointer;">
+            <label for="check" style="margin: 0; cursor: pointer; flex-shrink: 0;">
                 <input type="checkbox" id="check" class="toggle-checkbox" onchange="changeBalance()">
                 <span class="toggle-btn" id="toggleBtn">
 
@@ -281,7 +296,7 @@
     <!-- Action Navigation Links -->
     <div class="action-list">
         <a href="pay.jsp" class="action-card">
-            <span> Make a Payment</span>
+            <span>Make a Payment</span>
             <span class="action-icon">➔</span>
         </a>
 
