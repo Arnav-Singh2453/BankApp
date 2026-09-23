@@ -1,23 +1,18 @@
-# Stage 1: Build the Application using Maven & Java 23
+# Stage 1: Build using Java 23 & Maven
 FROM maven:3.9.9-eclipse-temurin-23-alpine AS build
 WORKDIR /app
-
-# Copy pom.xml and source code into container
 COPY pom.xml .
 COPY src ./src
-
-# Build executable JAR file and skip tests
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run the Application using Java 23 JRE
+# Stage 2: Runtime Environment using Java 23 JRE
 FROM eclipse-temurin:23-jre-alpine
 WORKDIR /app
 
-# Copy the generated JAR file from Stage 1
-COPY --from=build /app/target/*.jar app.jar
+# Copy built artifact (.war or .jar) from stage 1
+COPY --from=build /app/target/*.war app.war
 
-# Expose port 8080
 EXPOSE 8080
 
-# Command to start the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the WAR file directly with embedded Tomcat
+ENTRYPOINT ["java", "-jar", "app.war"]
