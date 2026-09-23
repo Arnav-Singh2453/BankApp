@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.support.SessionStatus;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -95,8 +96,9 @@ public class loginServlet {
     }
 
     @PostMapping("/signup")
-    public void signup(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("sinside signup");
+    public void signup(HttpServletRequest request, HttpServletResponse response, SessionStatus sessionStatus) throws IOException {
+
+        HttpSession session = request.getSession();
         String uname = request.getParameter("uname");
         int age = Integer.parseInt(request.getParameter("age"));
         String phone = (request.getParameter("phone"));
@@ -117,7 +119,7 @@ public class loginServlet {
             ResultSet rs = smt.executeQuery();
             if (rs.next()) {
                 System.out.println("issue");
-                request.setAttribute("msg", "Phone number is already registered");
+                session.setAttribute("msg", "Phone number is already registered");
                 request.getRequestDispatcher("./signup.jsp").forward(request, response);
 
 
@@ -145,13 +147,15 @@ public class loginServlet {
                         connect.rollback();
                     } else {
                         connect.commit();
-                        System.out.println("success");
-                        request.setAttribute("msg", "User registered successfully login now. Your CustomerID is "+rs.getInt("userID"));
+
+                        String s = "User registered successfully login now. Your CustomerID is "+rs.getInt("userID");
+
+                          session.setAttribute("msg",s);
                         request.getRequestDispatcher("./index.jsp").forward(request, response);
                     }
                 } else {
 
-                    request.setAttribute("msg", "some error try again");
+                    session.setAttribute("msg", "some error try again");
                     request.getRequestDispatcher("./signup.jsp").forward(request, response);
                 }
             }

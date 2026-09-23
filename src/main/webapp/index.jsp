@@ -188,7 +188,7 @@
     </div>
 
     <%
-        String error = (String) session.getAttribute("msg");
+        String error = (String)session.getAttribute("msg");
         if (error != null) {
 
     %>

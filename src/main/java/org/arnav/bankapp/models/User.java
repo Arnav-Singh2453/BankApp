@@ -12,9 +12,7 @@ public class User {
     @Id
     @Column(name="userID")
     @GeneratedValue(generator = "myseq",strategy=GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "myseq",sequenceName = "seq",initialValue =  100000000
-
-            ,allocationSize = 1)
+    @SequenceGenerator(name = "myseq",sequenceName = "seq",initialValue =  100000000,allocationSize = 1)
     private int userID;
     private String Password;
     private int Age;
