@@ -18,10 +18,7 @@ import java.sql.*;
 
 @Controller
 public class loginServlet {
-    @RequestMapping("/")
-    public String code(HttpServletResponse res) throws IOException {
-        return "index.jsp";
-    }
+
 
     @PostMapping("/hello-servlet")
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
