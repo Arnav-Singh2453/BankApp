@@ -30,6 +30,9 @@ public class DBUtil {
     }
 
     public static Connection getConnection() throws SQLException {
+        if (URL == null || USER == null || PASS == null) {
+            throw new SQLException("Database configuration is missing. Set DB_URL, DB_USER, and DB_PASSWORD.");
+        }
         return DriverManager.getConnection(URL, USER, PASS);
     }
 }

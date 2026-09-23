@@ -7,9 +7,9 @@ import org.arnav.bankapp.models.Transactions;
 import org.arnav.bankapp.utils.DBUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestBody;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class pay {
     private final ObjectMapper objectMapper;
 
@@ -31,13 +32,17 @@ public class pay {
     }
 
     @PostMapping("/send")
+    @ResponseBody
     public String send(HttpServletRequest req, HttpServletResponse response) {
         Connection connect = null;
         PreparedStatement smt = null;
         try {
             connect = DBUtil.getConnection();
             HttpSession session = req.getSession(false);
-            session.getAttribute("uid");
+            if (session == null || session.getAttribute("uid") == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return json(response, false, "Please log in first");
+            }
             int payid = Integer.parseInt(req.getParameter("payid"));
             double amount = Double.parseDouble(req.getParameter("amount"));
             String sql = "Select * from User_Info where userID = ?";
@@ -50,9 +55,10 @@ public class pay {
                 session.setAttribute("pid", payid);
                 session.setAttribute("name", rs.getString(5));
 
-                return "paymentsucc.jsp";
+                return json(response, true, "Recipient found");
             } else {
-                return "pay.jsp";
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return json(response, false, "Recipient account not found");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -60,12 +66,18 @@ public class pay {
     }
 
     @PostMapping("/psend")
+    @ResponseBody
     public String psend(HttpServletRequest req, HttpServletResponse response) {
         HttpSession session = req.getSession(false);
         Connection connect = null;
         PreparedStatement smt = null;
         try {
+            if (session == null || session.getAttribute("uid") == null || session.getAttribute("pid") == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return json(response, false, "Please log in first");
+            }
             connect = DBUtil.getConnection();
+            connect.setAutoCommit(false);
             String sql = "Select * from User_Info where userID = ?";
             smt = connect.prepareStatement(sql);
             smt.setInt(1, (Integer) session.getAttribute("uid"));
@@ -73,7 +85,7 @@ public class pay {
             String ms = "";
             if (rs.next()) {
                 double amt = (double) session.getAttribute("amount");
-                if (rs.getDouble("balance") > amt) {
+                if (rs.getDouble("balance") >= amt) {
                     sql = "Update User_Info set balance = balance - ?  where userID = ?";
                     smt = connect.prepareStatement(sql);
                     smt.setDouble(1, amt);
@@ -131,8 +143,8 @@ public class pay {
                                 smt.setInt(2, (int) session.getAttribute("pid"));
                                 z = smt.executeUpdate();
                                 if (z > 0) {
-                                    System.out.println("transactions histpry updated successfully");
-
+                                    System.out.println("transactions history updated successfully");
+                                    connect.commit();
                                 }
 
                             }
@@ -144,17 +156,31 @@ public class pay {
 
                         ms = "payment failed due to insufficient balance";
                     }
-                    session.setAttribute("msg", ms);
-                    return "paystatus.jsp";
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    return json(response, ms.equals("Payed successfully"), ms);
                 } else {
-                    System.out.println("User not found");
-                    return "pay.jsp";
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    return json(response, false, "Sender account not found");
                 }
             }
 
         } catch (SQLException e) {
+            if (connect != null) {
+                try {
+                    connect.rollback();
+                } catch (SQLException rollbackError) {
+                    System.out.println(rollbackError.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         }
-        return "index1.jsp";
+        return json(response, false, "Payment failed");
+    }
+
+    private String json(HttpServletResponse response, boolean success, String message) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        return "{\"success\":" + success + ",\"message\":\"" + message + "\"}";
     }
 }

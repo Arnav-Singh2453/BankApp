@@ -1,27 +1,19 @@
 import React from 'react';
-import { Volume2, Sun, Moon, Settings, RefreshCw, LogIn } from 'lucide-react';
-import { speakText, resetDemoState, logoutUser } from '../services/api';
+import { Volume2, Sun, Moon, Settings, LogIn } from 'lucide-react';
+import { speakText } from '../services/api';
 
 export default function HeaderBar({ 
   theme, 
   setTheme, 
   onOpenBackendSettings,
   onOpenLogin,
-  onStateUpdate,
-  balance = 5000,
+  balance = 0,
   user = {}
 }) {
-  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 5000;
+  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 0;
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
-  const handleResetDemo = () => {
-    if (window.confirm('Reset account balance to default demo state?')) {
-      const newState = resetDemoState();
-      onStateUpdate(newState);
-    }
   };
 
   return (
@@ -44,7 +36,7 @@ export default function HeaderBar({
         <div>
           <span style={{ fontWeight: '800', fontSize: '18px', display: 'block', lineHeight: 1.2 }}>EasyBank</span>
           <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
-            ID: {user?.userID || 100000001}
+            ID: {user?.userID || 'Not signed in'}
           </span>
         </div>
       </div>
@@ -67,11 +59,6 @@ export default function HeaderBar({
         {/* Contrast Theme Toggle */}
         <button className="icon-btn" onClick={toggleTheme} title="Toggle Theme">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-
-        {/* Reset Demo Data */}
-        <button className="icon-btn" onClick={handleResetDemo} title="Reset Demo Data">
-          <RefreshCw size={18} />
         </button>
 
         {/* Settings */}

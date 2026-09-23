@@ -56,7 +56,7 @@ export default function SeniorCardModal({ isOpen, onClose, card, onCardUpdate })
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '11px', opacity: 0.8 }}>HOLDER</div>
-              <div style={{ fontWeight: '700', fontSize: '14px' }}>{card.cardholderName || 'MARY MORGAN'}</div>
+              <div style={{ fontWeight: '700', fontSize: '14px' }}>{card.cardholderName || 'Cardholder name unavailable'}</div>
             </div>
 
             <div>

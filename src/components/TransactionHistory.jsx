@@ -60,7 +60,7 @@ export default function TransactionHistory({ transactions }) {
                   fontSize: '16px', 
                   color: isIncome ? 'var(--color-green)' : 'var(--color-red)' 
                 }}>
-                  {isIncome ? '+' : '-'}${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {isIncome ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>
             );

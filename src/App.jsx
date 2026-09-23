@@ -12,7 +12,7 @@ import { getAppState } from './services/api';
 
 export default function App() {
   const [theme, setTheme] = useState('light');
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen] = useState(false);
 
   // App State
   const [state, setState] = useState(getAppState());
@@ -41,7 +41,6 @@ export default function App() {
           setTheme={setTheme}
           onOpenBackendSettings={() => setIsSettingsOpen(true)}
           onOpenLogin={() => setIsLoginOpen(true)}
-          onStateUpdate={(newState) => setState(newState)}
           balance={state.balance}
           user={state.user}
         />
@@ -52,10 +51,10 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <h1 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>
-                Welcome, {state.user.name || 'Mary Morgan'} 👋
+                Welcome, {state.user.name || 'there'}
               </h1>
               <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-muted)' }}>
-                User ID: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-green)' }}>{state.user.userID || 100000001}</span>
+                User ID: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-green)' }}>{state.user.userID || 'Not signed in'}</span>
               </p>
             </div>
           </div>

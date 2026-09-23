@@ -3,15 +3,9 @@ import { X, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { performSendMoney } from '../services/api';
 
-const SAMPLE_USER_IDS = [
-  { name: 'Ramesh (ID: 100000002)', id: '100000002' },
-  { name: 'Priya (ID: 100000003)', id: '100000003' },
-  { name: 'Pharmacy (ID: 100000004)', id: '100000004' },
-];
-
 export default function SendMoneyModal({ isOpen, onClose, onSuccess }) {
-  const [payid, setPayid] = useState('100000002');
-  const [amount, setAmount] = useState('500');
+  const [payid, setPayid] = useState('');
+  const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
 
@@ -66,33 +60,10 @@ export default function SendMoneyModal({ isOpen, onClose, onSuccess }) {
         <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label className="clean-label">Recipient User ID (`payid`)</label>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
-              {SAMPLE_USER_IDS.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setPayid(c.id)}
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid',
-                    borderColor: payid === c.id ? 'var(--color-red)' : 'var(--bg-card-border)',
-                    backgroundColor: payid === c.id ? 'var(--color-red-light)' : 'var(--bg-input)',
-                    color: 'var(--text-main)',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {c.name}
-                </button>
-              ))}
-            </div>
-
             <input 
               type="number"
               className="clean-input"
-              placeholder="e.g. 100000002"
+              placeholder="Enter recipient user ID"
               value={payid}
               onChange={(e) => setPayid(e.target.value)}
               required

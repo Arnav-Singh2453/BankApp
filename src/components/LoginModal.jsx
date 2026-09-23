@@ -4,15 +4,16 @@ import { loginUser, signupUser } from '../services/api';
 
 export default function LoginModal({ isOpen, onClose, onSuccess }) {
   const [isSignup, setIsSignup] = useState(false);
-  const [uname, setUname] = useState('100000001');
-  const [pass, setPass] = useState('123456');
+  const [uname, setUname] = useState('');
+  const [pass, setPass] = useState('');
   
   // Signup fields
-  const [name, setName] = useState('Mary Morgan');
-  const [age, setAge] = useState('65');
-  const [phone, setPhone] = useState('9876543210');
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [phone, setPhone] = useState('');
   
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -20,11 +21,17 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setIsSubmitting(true);
 
     try {
       if (isSignup) {
-        await signupUser({ name, age, phone, pass });
+        const result = await signupUser({ name, age, phone, pass });
+        setUname(String(result.userID || ''));
+        setPass('');
+        setIsSignup(false);
+        setSuccess(`Account created. Your User ID is ${result.userID}. Use it to log in.`);
+        return;
       } else {
         await loginUser({ uname, pass });
       }
@@ -63,11 +70,25 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
           </div>
         )}
 
+        {success && (
+          <div style={{
+            backgroundColor: 'var(--color-green-light)',
+            border: '1px solid var(--color-green)',
+            color: 'var(--color-green)',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            fontWeight: '700',
+            fontSize: '14px'
+          }}>
+            {success}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {isSignup ? (
             <>
               <div>
-                <label className="clean-label">Full Name (`uname`)</label>
+                <label className="clean-label">Full Name</label>
                 <input 
                   type="text"
                   className="clean-input"
@@ -113,7 +134,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
           ) : (
             <>
               <div>
-                <label className="clean-label">User ID (`uname` e.g. 100000001)</label>
+                <label className="clean-label">User ID</label>
                 <input 
                   type="number"
                   className="clean-input"

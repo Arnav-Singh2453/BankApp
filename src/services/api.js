@@ -1,41 +1,28 @@
-const STORAGE_KEY = 'bankapp_state_v6';
-const API_CONFIG_KEY = 'bankapp_api_config_v6';
+const STORAGE_KEY = 'bankapp_state_v7';
+const API_CONFIG_KEY = 'bankapp_api_config_v7';
 
-// Default initial state matching Spring Boot backend (User ID: 100000001, Initial Balance: ₹5,000.00)
 const INITIAL_STATE = {
-  isLoggedIn: true,
+  isLoggedIn: false,
   user: {
-    userID: 100000001,
-    name: 'Mary Morgan',
-    phone: '9876543210',
-    age: 65,
-    accountNumber: '4092-8840-5512',
-    iban: 'IN89 EASY 4092 8840 5512',
+    userID: null,
+    name: '',
+    phone: '',
+    age: null,
   },
-  balance: 5000.00,
+  balance: 0,
   currency: '₹',
   card: {
-    cardNumber: '4532 8810 9940 3312',
-    cardholderName: 'MARY MORGAN',
-    expiry: '12/28',
-    cvv: '542',
+    cardNumber: '',
+    cardholderName: '',
+    expiry: '',
+    cvv: '',
     isFrozen: false,
   },
-  transactions: [
-    {
-      id: 'tx_init_1',
-      payid: 100000002,
-      title: 'Welcome Bonus Deposit',
-      type: 'income',
-      amount: 5000.00,
-      date: 'Today, 9:00 AM',
-      note: 'Account Signup Bonus',
-    }
-  ]
+  transactions: []
 };
 
 const DEFAULT_API_CONFIG = {
-  useMockData: true,
+  useMockData: false,
   baseUrl: 'http://localhost:8080',
 };
 
@@ -115,30 +102,28 @@ export const loginUser = async ({ uname, pass }) => {
 
       const res = await fetch(`${config.baseUrl}/hello-servlet`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params,
       });
 
-      const data = await res.json();
+      const data = await readApiResponse(res);
       if (!data.success) {
         throw new Error(data.message || 'Login failed');
       }
 
+      const account = await fetchAccount(config);
       const state = getAppState();
       state.isLoggedIn = true;
-      state.user.userID = parseInt(uname);
+      state.user = { ...state.user, ...account.user };
+      state.balance = account.balance;
       saveAppState(state);
       return data;
     } catch (err) {
-      console.warn('Backend login failed, using local demo login:', err.message);
+      throw new Error(formatApiError(err, 'Login failed'));
     }
   }
-
-  const state = getAppState();
-  state.isLoggedIn = true;
-  state.user.userID = parseInt(uname) || 100000001;
-  saveAppState(state);
-  return { success: true, message: 'Login successful' };
+  throw new Error('Live backend is not configured. Open backend settings and enable the API.');
 };
 
 /**
@@ -157,24 +142,25 @@ export const signupUser = async ({ name, age, phone, pass }) => {
 
       const res = await fetch(`${config.baseUrl}/signup`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params,
       });
 
-      if (!res.ok) throw new Error('Registration failed');
+      const data = await readApiResponse(res);
+      if (!res.ok || !data.success) throw new Error(data.message || 'Registration failed');
+      const account = await fetchAccount(config);
+      const state = getAppState();
+      state.isLoggedIn = true;
+      state.user = { ...state.user, ...account.user };
+      state.balance = account.balance;
+      saveAppState(state);
+      return data;
     } catch (err) {
-      console.warn('Backend signup error, fallback to local state:', err.message);
+      throw new Error(formatApiError(err, 'Registration failed'));
     }
   }
-
-  const state = getAppState();
-  state.isLoggedIn = true;
-  state.user.name = name;
-  state.user.phone = phone;
-  state.user.age = age;
-  state.balance = 5000.00;
-  saveAppState(state);
-  return { success: true, message: 'User registered successfully' };
+  throw new Error('Live backend is not configured. Open backend settings and enable the API.');
 };
 
 /**
@@ -190,7 +176,7 @@ export const performSendMoney = async ({ payid, amount, note }) => {
   }
 
   if (isNaN(targetPayId)) {
-    throw new Error('Please enter a valid numeric Recipient User ID (e.g. 100000002).');
+    throw new Error('Please enter a valid numeric recipient User ID.');
   }
 
   // Live Backend Call to /send & /psend
@@ -202,39 +188,55 @@ export const performSendMoney = async ({ payid, amount, note }) => {
 
       const resSend = await fetch(`${config.baseUrl}/send`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: sendParams,
       });
 
-      if (resSend.ok) {
-        const resPsend = await fetch(`${config.baseUrl}/psend`, { method: 'POST' });
-        if (!resPsend.ok) throw new Error('Payment execution failed on server');
-      }
+      const sendData = await readApiResponse(resSend);
+      if (!resSend.ok || !sendData.success) throw new Error(sendData.message || 'Recipient account not found');
+      const resPsend = await fetch(`${config.baseUrl}/psend`, { method: 'POST', credentials: 'include' });
+      const paymentData = await readApiResponse(resPsend);
+      if (!resPsend.ok || !paymentData.success) throw new Error(paymentData.message || 'Payment execution failed on server');
+      const account = await fetchAccount(config);
+      const state = getAppState();
+      state.balance = account.balance;
+      const newTx = {
+        id: 'tx_' + Date.now(), payid: targetPayId,
+        title: `Sent to User ID ${targetPayId}`, type: 'expense', amount: numAmount,
+        date: 'Just Now', note: note || 'Transfer',
+      };
+      state.transactions.unshift(newTx);
+      saveAppState(state);
+      return { success: true, newBalance: state.balance, transaction: newTx };
     } catch (err) {
-      console.warn('Live backend payment failed, executing local state update:', err.message);
+      throw new Error(formatApiError(err, 'Payment failed'));
     }
   }
+  throw new Error('Live backend is not configured. Open backend settings and enable the API.');
+};
 
-  const state = getAppState();
-  if (state.balance < numAmount) {
-    throw new Error(`Insufficient balance. Current balance: ₹${state.balance.toLocaleString('en-IN')}.`);
+const fetchAccount = async (config) => {
+  const response = await fetch(`${config.baseUrl}/account`, { credentials: 'include' });
+  const data = await readApiResponse(response);
+  if (!response.ok || !data.success) throw new Error(data.message || 'Could not load account');
+  return data;
+};
+
+const readApiResponse = async (response) => {
+  const body = await response.text();
+  try {
+    return body ? JSON.parse(body) : { success: response.ok };
+  } catch {
+    throw new Error(response.ok ? 'Backend returned an invalid response.' : `Backend error (${response.status}).`);
   }
+};
 
-  state.balance -= numAmount;
-  const newTx = {
-    id: 'tx_' + Date.now(),
-    payid: targetPayId,
-    title: `Sent to User ID ${targetPayId}`,
-    type: 'expense',
-    amount: numAmount,
-    date: 'Just Now',
-    note: note || 'Transfer',
-  };
-
-  state.transactions.unshift(newTx);
-  saveAppState(state);
-
-  return { success: true, newBalance: state.balance, transaction: newTx };
+const formatApiError = (error, fallback) => {
+  if (error instanceof TypeError) {
+    return 'Cannot reach the backend. Start Spring Boot and check the Backend API URL.';
+  }
+  return error.message || fallback;
 };
 
 /**
@@ -297,7 +299,7 @@ export const testBackendPing = async (baseUrl) => {
     clearTimeout(timeoutId);
     if (res.ok) return { connected: true, message: 'Spring Boot Backend Connected!' };
     return { connected: false, message: `Server returned status ${res.status}` };
-  } catch (err) {
+  } catch {
     return { connected: false, message: `Could not reach ${targetUrl}` };
   }
 };

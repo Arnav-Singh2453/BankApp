@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Copy, Check } from 'lucide-react';
 
-export default function BalanceCard({ balance = 5000, user = {} }) {
+export default function BalanceCard({ balance = 0, user = {} }) {
   const [showBalance, setShowBalance] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 5000;
+  const safeBalance = typeof balance === 'number' && !isNaN(balance) ? balance : 0;
 
   const handleCopyIban = () => {
-    navigator.clipboard.writeText(user.iban || 'IN89 EASY 4092 8840 5512');
+    navigator.clipboard.writeText(user.accountNumber || String(user.userID || ''));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -44,7 +44,7 @@ export default function BalanceCard({ balance = 5000, user = {} }) {
         <div>
           <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)' }}>Account Number / UPI</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '14px' }}>
-            {user.accountNumber || '4092-8840-5512'}
+            {user.accountNumber || user.userID || 'Not available'}
           </div>
         </div>
 

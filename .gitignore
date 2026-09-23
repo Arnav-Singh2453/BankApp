@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Local secrets and generated backend files
+.env
+target/
+signup-cookies.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
