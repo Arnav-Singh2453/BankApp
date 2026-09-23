@@ -42,9 +42,7 @@ public class Transactions {
 
     @Override
     public String toString() {
-        return "id=" + id +
-                ", amount=" + amount +
-                ", " + status(this.sent);
+        return "id=" + id + ", amount=" + amount + ", " + status(this.sent);
     }
 
 

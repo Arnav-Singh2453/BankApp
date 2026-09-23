@@ -50,7 +50,7 @@ public class pay {
                 session.setAttribute("pid", payid);
                 session.setAttribute("name", rs.getString(5));
 
-                return "paymentsucc.jsp";
+                return "pay.jsp";
             } else {
                 return "pay.jsp";
             }
@@ -102,7 +102,7 @@ public class pay {
 
 
                             }
-                            list.add(new Transactions((int) session.getAttribute("pid"), (double) session.getAttribute("amount"), true));
+                            list.add(0,new Transactions((int) session.getAttribute("pid"), (double) session.getAttribute("amount"), true));
                             String s = objectMapper.writeValueAsString(list);
                             sql = "Update trans_history set transactions = ?  where userID = ?";
                             smt = connect.prepareStatement(sql);
@@ -123,7 +123,7 @@ public class pay {
                                         });
                                     }
                                 }
-                                list.add(new Transactions((int) session.getAttribute("uid"), (double) session.getAttribute("amount"), false));
+                                list.add(0,new Transactions((int) session.getAttribute("uid"), (double) session.getAttribute("amount"), false));
                                 s = objectMapper.writeValueAsString(list);
                                 sql = "Update trans_history set transactions = ?  where userID = ?";
                                 smt = connect.prepareStatement(sql);
@@ -131,6 +131,7 @@ public class pay {
                                 smt.setInt(2, (int) session.getAttribute("pid"));
                                 z = smt.executeUpdate();
                                 if (z > 0) {
+                                    session.setAttribute("useramount", (double) session.getAttribute("useramount")-amt);
                                     System.out.println("transactions histpry updated successfully");
 
                                 }
