@@ -5,16 +5,16 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Build package and run Spring Boot repackage goal
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime Environment using Java 23 JRE
 FROM eclipse-temurin:23-jre-alpine
 WORKDIR /app
 
-# Copy executable archive from target/
-COPY --from=build /app/target/app.* ./app.file
+# Explicitly copy app.war (or app.jar depending on your <packaging> setting)
+COPY --from=build /app/target/app.war ./app.war
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.file"]
+# Pass --enable-preview if your code uses Java 23 preview features at runtime
+ENTRYPOINT ["java", "--enable-preview", "-jar", "app.war"]
