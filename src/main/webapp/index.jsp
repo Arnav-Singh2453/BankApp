@@ -177,7 +177,7 @@
 
     <form action="./hello-servlet" method="post">
         <div class="form-group">
-            <label for="uname">Username / Account Number</label>
+            <label for="uname">CustomerID</label>
             <input type="number" name="uname" id="uname" placeholder="Enter your number" required>
         </div>
 
